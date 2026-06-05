@@ -5,6 +5,7 @@ import { colors } from './src/theme'
 import HomeScreen from './src/screens/HomeScreen'
 import NovoRegistroScreen from './src/screens/NovoRegistroScreen'
 import CategoriasScreen from './src/screens/CategoriasScreen'
+import EditarRegistroScreen from './src/screens/EditarRegistroScreen'
 
 const Stack = createNativeStackNavigator()
 
@@ -34,6 +35,11 @@ export default function App() {
           name="Categorias"
           component={CategoriasScreen}
           options={{ title: 'categorias' }}
+        />
+        <Stack.Screen
+          name="EditarRegistro"
+          component={EditarRegistroScreen}
+          options={{ title: 'editar registro' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
