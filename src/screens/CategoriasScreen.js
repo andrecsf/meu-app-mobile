@@ -71,7 +71,6 @@ export default function CategoriasScreen({ navigation, route }) {
       }
       fecharForm()
       carregar()
-      route.params?.onVoltar?.()
     } catch (err) {
       Alert.alert('Erro', 'Não foi possível salvar a categoria.')
     } finally {
@@ -91,7 +90,6 @@ export default function CategoriasScreen({ navigation, route }) {
             try {
               await api.delete(`/categorias/${cat.id}`)
               carregar()
-              route.params?.onVoltar?.()
             } catch (err) {
               Alert.alert('Erro', 'Não foi possível excluir a categoria.')
             }

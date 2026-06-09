@@ -99,7 +99,7 @@ export default function HomeScreen({ navigation }) {
         }
         ListHeaderComponent={
           <View>
-            <Text style={styles.titulo}>hábitos</Text>
+            <Text style={styles.titulo}>Hábitos</Text>
 
             {/* Seletor de mês */}
             <View style={styles.mesSeletor}>

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useCallback } from 'react'
+import { useFocusEffect } from '@react-navigation/native'
 import {
   View, Text, StyleSheet, TextInput,
   TouchableOpacity, ActivityIndicator, Alert, ScrollView
@@ -13,9 +14,9 @@ export default function NovoRegistroScreen({ navigation }) {
   const [mostrarCategorias, setMostrarCategorias] = useState(false)
   const [salvando, setSalvando] = useState(false)
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     carregarCategorias()
-  }, [])
+  }, []))
 
   async function carregarCategorias() {
     try {
@@ -106,7 +107,7 @@ export default function NovoRegistroScreen({ navigation }) {
       {/* Botão criar nova categoria */}
       <TouchableOpacity
         style={styles.novaCatBtn}
-        onPress={() => navigation.navigate('Categorias', { onVoltar: carregarCategorias })}
+        onPress={() => navigation.navigate('Categorias')}
       >
         <Text style={styles.novaCatText}>+ gerenciar categorias</Text>
       </TouchableOpacity>
