@@ -42,22 +42,29 @@ Após rodar o `npx expo start`, um QR code será exibido no terminal. Abra o apl
 ## Backend
 
 A API está hospedada em produção e já está configurada no app:
+
+```
 https://habit-tracker-backend-idux.onrender.com
+```
+
 Não é necessário rodar o backend localmente.
 
 ## Estrutura de pastas
+
+```
 meu-app-mobile/
 ├── src/
 │   ├── components/
-│   │   ├── RegistroCard.js     # Card de cada registro na listagem
-│   │   └── CategoriaTag.js     # Pílula com ícone e nome da categoria
+│   │   ├── RegistroCard.js         # Card de cada registro na listagem
+│   │   └── CategoriaTag.js         # Pílula com ícone e nome da categoria
 │   ├── screens/
 │   │   ├── HomeScreen.js           # Tela inicial com dashboard e listagem
 │   │   ├── NovoRegistroScreen.js   # Tela de criação de registro
 │   │   ├── EditarRegistroScreen.js # Tela de edição e exclusão de registro
 │   │   └── CategoriasScreen.js     # Gerenciamento de categorias
 │   ├── services/
-│   │   └── api.js              # Configuração do axios
-│   └── theme.js                # Cores, espaçamentos e tipografia
-├── App.js                      # Navegação principal
+│   │   └── api.js                  # Configuração do axios
+│   └── theme.js                    # Cores, espaçamentos e tipografia
+├── App.js                          # Navegação principal
 └── package.json
+```
