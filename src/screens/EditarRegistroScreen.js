@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import {
   View, Text, StyleSheet, TextInput,
-  TouchableOpacity, ActivityIndicator, Alert, ScrollView
+  TouchableOpacity, ActivityIndicator, Alert, ScrollView, Platform
 } from 'react-native'
+import DateTimePicker from '@react-native-community/datetimepicker'
 import api from '../services/api'
 import { colors, spacing, radius, fontSize } from '../theme'
 
@@ -15,6 +16,9 @@ export default function EditarRegistroScreen({ navigation, route }) {
   )
   const [mostrarCategorias, setMostrarCategorias] = useState(false)
   const [salvando, setSalvando] = useState(false)
+  const [data, setData] = useState(new Date(registro.criado_em))
+  const [mostrarData, setMostrarData] = useState(false)
+  const [mostrarHora, setMostrarHora] = useState(false)
 
   async function salvar() {
     if (!descricao.trim()) {
@@ -31,6 +35,7 @@ export default function EditarRegistroScreen({ navigation, route }) {
       await api.put(`/registros/${registro.id}`, {
         descricao: descricao.trim(),
         categoria_id: categoriaSelecionada.id,
+        criado_em: data.toISOString(),
       })
       navigation.goBack()
     } catch (err) {
@@ -61,6 +66,14 @@ export default function EditarRegistroScreen({ navigation, route }) {
     )
   }
 
+  function formatarData(d) {
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  }
+
+  function formatarHora(d) {
+    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  }
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
 
@@ -73,6 +86,55 @@ export default function EditarRegistroScreen({ navigation, route }) {
         numberOfLines={3}
         placeholderTextColor={colors.textMuted}
       />
+
+      <Text style={styles.label}>quando?</Text>
+      <View style={styles.dataRow}>
+        <TouchableOpacity
+          style={[styles.dataBtn, { flex: 2 }]}
+          onPress={() => setMostrarData(true)}
+        >
+          <Text style={styles.dataBtnText}>📅 {formatarData(data)}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.dataBtn, { flex: 1 }]}
+          onPress={() => setMostrarHora(true)}
+        >
+          <Text style={styles.dataBtnText}>🕐 {formatarHora(data)}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {mostrarData && (
+        <DateTimePicker
+          value={data}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          maximumDate={new Date()}
+          onChange={(event, selected) => {
+            setMostrarData(false)
+            if (selected) {
+              const nova = new Date(data)
+              nova.setFullYear(selected.getFullYear(), selected.getMonth(), selected.getDate())
+              setData(nova)
+            }
+          }}
+        />
+      )}
+
+      {mostrarHora && (
+        <DateTimePicker
+          value={data}
+          mode="time"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selected) => {
+            setMostrarHora(false)
+            if (selected) {
+              const nova = new Date(data)
+              nova.setHours(selected.getHours(), selected.getMinutes())
+              setData(nova)
+            }
+          }}
+        />
+      )}
 
       <Text style={styles.label}>categoria</Text>
       <TouchableOpacity
@@ -113,7 +175,7 @@ export default function EditarRegistroScreen({ navigation, route }) {
         disabled={salvando}
       >
         {salvando
-          ? <ActivityIndicator color="white" />
+          ? <ActivityIndicator color="white" size="small" />
           : <Text style={styles.salvarText}>salvar alterações</Text>
         }
       </TouchableOpacity>
@@ -141,6 +203,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg, minHeight: 72,
     textAlignVertical: 'top',
   },
+  dataRow: {
+    flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg,
+  },
+  dataBtn: {
+    backgroundColor: colors.card,
+    borderWidth: 0.5, borderColor: colors.primaryBorder,
+    borderRadius: radius.sm, padding: spacing.md,
+    alignItems: 'center',
+  },
+  dataBtnText: { fontSize: fontSize.sm, color: colors.textDark },
   selector: {
     backgroundColor: colors.card,
     borderWidth: 0.5, borderColor: colors.primaryBorder,

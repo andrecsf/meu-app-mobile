@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react'
-import { useFocusEffect } from '@react-navigation/native'
 import {
   View, Text, StyleSheet, TextInput,
-  TouchableOpacity, ActivityIndicator, Alert, ScrollView
+  TouchableOpacity, ActivityIndicator, Alert, ScrollView, Platform
 } from 'react-native'
+import DateTimePicker from '@react-native-community/datetimepicker'
+import { useFocusEffect } from '@react-navigation/native'
 import api from '../services/api'
 import { colors, spacing, radius, fontSize } from '../theme'
 
@@ -13,6 +14,9 @@ export default function NovoRegistroScreen({ navigation }) {
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null)
   const [mostrarCategorias, setMostrarCategorias] = useState(false)
   const [salvando, setSalvando] = useState(false)
+  const [data, setData] = useState(new Date())
+  const [mostrarData, setMostrarData] = useState(false)
+  const [mostrarHora, setMostrarHora] = useState(false)
 
   useFocusEffect(useCallback(() => {
     carregarCategorias()
@@ -42,6 +46,7 @@ export default function NovoRegistroScreen({ navigation }) {
       await api.post('/registros', {
         descricao: descricao.trim(),
         categoria_id: categoriaSelecionada.id,
+        criado_em: data.toISOString(),
       })
       navigation.goBack()
     } catch (err) {
@@ -49,6 +54,14 @@ export default function NovoRegistroScreen({ navigation }) {
     } finally {
       setSalvando(false)
     }
+  }
+
+  function formatarData(d) {
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  }
+
+  function formatarHora(d) {
+    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   }
 
   return (
@@ -65,9 +78,56 @@ export default function NovoRegistroScreen({ navigation }) {
         numberOfLines={3}
       />
 
-      <Text style={styles.label}>categoria</Text>
+      <Text style={styles.label}>quando?</Text>
+      <View style={styles.dataRow}>
+        <TouchableOpacity
+          style={[styles.dataBtn, { flex: 2 }]}
+          onPress={() => setMostrarData(true)}
+        >
+          <Text style={styles.dataBtnText}>📅 {formatarData(data)}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.dataBtn, { flex: 1 }]}
+          onPress={() => setMostrarHora(true)}
+        >
+          <Text style={styles.dataBtnText}>🕐 {formatarHora(data)}</Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* Seletor de categoria */}
+      {mostrarData && (
+        <DateTimePicker
+          value={data}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          maximumDate={new Date()}
+          onChange={(event, selected) => {
+            setMostrarData(false)
+            if (selected) {
+              const nova = new Date(data)
+              nova.setFullYear(selected.getFullYear(), selected.getMonth(), selected.getDate())
+              setData(nova)
+            }
+          }}
+        />
+      )}
+
+      {mostrarHora && (
+        <DateTimePicker
+          value={data}
+          mode="time"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selected) => {
+            setMostrarHora(false)
+            if (selected) {
+              const nova = new Date(data)
+              nova.setHours(selected.getHours(), selected.getMinutes())
+              setData(nova)
+            }
+          }}
+        />
+      )}
+
+      <Text style={styles.label}>categoria</Text>
       <TouchableOpacity
         style={styles.selector}
         onPress={() => setMostrarCategorias(!mostrarCategorias)}
@@ -80,7 +140,6 @@ export default function NovoRegistroScreen({ navigation }) {
         <Text style={styles.arrow}>{mostrarCategorias ? '▲' : '▼'}</Text>
       </TouchableOpacity>
 
-      {/* Lista de categorias */}
       {mostrarCategorias && (
         <View style={styles.dropdown}>
           {categorias.length === 0 && (
@@ -104,7 +163,6 @@ export default function NovoRegistroScreen({ navigation }) {
         </View>
       )}
 
-      {/* Botão criar nova categoria */}
       <TouchableOpacity
         style={styles.novaCatBtn}
         onPress={() => navigation.navigate('Categorias')}
@@ -112,7 +170,6 @@ export default function NovoRegistroScreen({ navigation }) {
         <Text style={styles.novaCatText}>+ gerenciar categorias</Text>
       </TouchableOpacity>
 
-      {/* Botão salvar */}
       <TouchableOpacity
         style={[styles.salvarBtn, salvando && styles.salvarBtnDisabled]}
         onPress={salvar}
@@ -143,6 +200,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg, minHeight: 72,
     textAlignVertical: 'top',
   },
+  dataRow: {
+    flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg,
+  },
+  dataBtn: {
+    backgroundColor: colors.card,
+    borderWidth: 0.5, borderColor: colors.primaryBorder,
+    borderRadius: radius.sm, padding: spacing.md,
+    alignItems: 'center',
+  },
+  dataBtnText: { fontSize: fontSize.sm, color: colors.textDark },
   selector: {
     backgroundColor: colors.card,
     borderWidth: 0.5, borderColor: colors.primaryBorder,
